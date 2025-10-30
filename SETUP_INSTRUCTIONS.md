@@ -1,5 +1,7 @@
 # Setup Guide: Google Sheets Backend & GitHub Pages Hosting
 
+> **⚠️ IMPORTANT:** Your live website will show an "Action Required" screen until you complete **Part 1, Step 4**. This is the most common setup issue. Please follow the guide carefully.
+
 Follow these steps carefully to connect your Trading Journal application to a Google Sheet and deploy it online for free.
 
 ## Part 1: Setting up the Google Sheet and Backend API
@@ -39,80 +41,72 @@ This is the most critical step. It turns your script into a live API endpoint (a
 7.  After authorizing, you will see a **Deployment successfully updated** dialog with a **Web app URL**.
 8.  **COPY THIS URL.** This is your unique API endpoint.
 
-### Step 4: Connect the Frontend to Your New Backend
+### Step 4: ⚠️ Connect The App To Your Backend (CRITICAL STEP)
 
-1.  Go back to your application code.
-2.  Open the `constants.ts` file.
-3.  Replace the placeholder `'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'` with the **Web app URL you just copied**.
-4.  Save the file.
+This is the final and most important step to make your app work. If your live website shows a setup guide, it's because this step was missed or done incorrectly.
 
-Your application is now configured to use Google Sheets as its database! When you run the app locally, it should fetch and save data to your sheet.
+1.  Go back to your application code editor.
+2.  Find and open the file named `constants.ts`.
+3.  You will see the following line:
+    ```javascript
+    export const APPS_SCRIPT_URL = 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE';
+    ```
+4.  ➡️ **DELETE** the placeholder text `'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE'`.
+5.  ➡️ **PASTE** the **Web app URL** you copied from the Google Apps Script deployment dialog.
+6.  ✅ Save the file. Your `constants.ts` should now look something like this (with your own unique URL):
+    ```javascript
+    export const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfy.../exec';
+    ```
 
 ---
 
-## Part 2: Deploying to GitHub Pages
+## Part 2: Deploying the Website
 
-This part will publish your application to a free, public URL.
+This part will publish your application to your free GitHub Pages URL.
 
-### Step 1: Create a GitHub Repository
+### Step 1: Install Dependencies
 
-1.  Go to [github.com](https://github.com) and create a new repository.
-2.  Initialize the repository and push all your application code to it.
-
-### Step 2: Install Deployment Package
-
-In your project's terminal, run this command to install the `gh-pages` package, which simplifies deployment:
+If you haven't already, open a terminal in your project's root directory and run this command. This downloads all the necessary tools and libraries.
 
 ```bash
-npm install gh-pages --save-dev
+npm install
 ```
 
-### Step 3: Configure `package.json`
+### Step 2: Deploy from Your Computer
 
-You need to add three lines to your `package.json` file. (This file is not provided, so you'll need to create it if it doesn't exist by running `npm init -y` and then add your dependencies).
-
-1.  **`homepage`**: At the top level of the JSON object, add a `homepage` key. The value should be `https://<YOUR_GITHUB_USERNAME>.github.io/<YOUR_REPOSITORY_NAME>`.
-    *   Replace `<YOUR_GITHUB_USERNAME>` and `<YOUR_REPOSITORY_NAME>` accordingly.
-
-2.  **`scripts`**: Inside the existing `scripts` object, add two new scripts: `predeploy` and `deploy`.
-
-Your final `package.json` should look something like this (your dependencies might be different):
-
-```json
-{
-  "name": "trading-journal",
-  "version": "1.0.0",
-  "homepage": "https://johndoe.github.io/trading-journal-app",
-  "scripts": {
-    "start": "vite",
-    "build": "vite build",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist"
-  },
-  "dependencies": {
-    "react": "^19.2.0",
-    "react-dom": "^19.2.0",
-    "recharts": "^3.3.0"
-  },
-  "devDependencies": {
-    "gh-pages": "^6.1.1",
-    "vite": "^5.0.0" 
-  }
-}
-```
-*Note: This app uses Vite for its build process. Ensure you have `vite` as a dev dependency (`npm install vite --save-dev`).*
-
-### Step 4: Deploy!
-
-1.  Commit and push the changes you made to `package.json`.
+1.  Make sure you have committed and pushed all your code changes (especially the updated `constants.ts` file) to your GitHub repository.
 2.  Run the deploy command from your project's terminal:
 
     ```bash
     npm run deploy
     ```
 
-3.  This will build your application and push the final static files to a special `gh-pages` branch in your repository.
+This command automatically performs two actions:
+1.  **`npm run build`**: Compiles your React and TypeScript code into plain HTML, CSS, and JavaScript and places it in a `dist` folder.
+2.  **`gh-pages -d dist`**: Pushes the contents of that `dist` folder to a special branch in your repository named `gh-pages`.
 
-4.  Go to your repository's settings on GitHub, navigate to the "Pages" section, and ensure that the source is set to deploy from the `gh-pages` branch.
+---
 
-**Done!** After a minute or two, your Trading Journal will be live at the URL you specified in the `homepage` field.
+## Part 3: **CRITICAL FINAL STEP** - Configure GitHub Repository
+
+You must tell GitHub to use the `gh-pages` branch for your live website.
+
+1.  Go to your repository on GitHub: `https://github.com/atulpnd/tradediary`
+2.  Click on the **Settings** tab.
+3.  In the left sidebar, click on **Pages**.
+4.  Under the "Build and deployment" section, find the **Source** setting.
+5.  It will likely say "Deploy from a branch". In the dropdown menus, make the following selections:
+    *   **Branch:** Change from `main` (or `master`) to **`gh-pages`**.
+    *   **Folder:** Leave this as **`/(root)`**.
+6.  Click **Save**.
+
+**That's it!** After a minute or two, GitHub will update your site. Go to your URL (`https://atulpnd.github.io/tradediary/`) and your application should now load correctly.
+
+---
+
+## 🚨 Troubleshooting
+
+**Problem:** My live website shows a full-screen "Action Required" setup guide.
+
+*   **Cause:** You have not updated the `constants.ts` file with your unique API URL from Google Apps Script. The app doesn't know where to load your data from.
+*   **Solution:** Follow the on-screen instructions, or go back and carefully follow **Part 1, Step 4** of this guide. You must paste your deployed Web app URL into the `constants.ts` file and then re-deploy the application by running `npm run deploy`.

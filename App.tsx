@@ -9,11 +9,14 @@ import CalendarPage from './CalendarPage';
 import ReportsPage from './ReportsPage';
 import { getDateRange } from './dateUtils';
 import { getTrades, addTrade as apiAddTrade, updateTrade as apiUpdateTrade, deleteTrade as apiDeleteTrade } from './api';
+import { APPS_SCRIPT_URL } from './constants';
+import SetupGuide from './SetupGuide';
 
 const App: React.FC = () => {
   const [trades, setTrades] = useState<Trade[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSetupRequired, setIsSetupRequired] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activePage, setActivePage] = useState<Page>('dashboard');
@@ -21,14 +24,22 @@ const App: React.FC = () => {
   const [editingTrade, setEditingTrade] = useState<Trade | null>(null);
 
   useEffect(() => {
+    // Proactively check if the app is configured before making an API call.
+    if (APPS_SCRIPT_URL === 'YOUR_GOOGLE_APPS_SCRIPT_URL_HERE') {
+      setIsSetupRequired(true);
+      setLoading(false);
+      return;
+    }
+
     getTrades()
       .then(fetchedTrades => {
         setTrades(fetchedTrades);
         setLoading(false);
       })
       .catch(err => {
-        console.error("Failed to fetch trades:", err);
-        setError("Could not load trade data. Please check your setup and ensure the Google Apps Script URL is correct.");
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        console.error("Failed to fetch trades:", errorMessage);
+        setError(errorMessage);
         setLoading(false);
       });
   }, []);
@@ -99,16 +110,6 @@ const App: React.FC = () => {
   }, [trades, activeFilter]);
 
   const renderPage = () => {
-    if (error) {
-      return (
-        <div className="p-4 text-center text-red-400 bg-red-900/50 border border-red-500 rounded-lg">
-          <h2 className="text-xl font-bold mb-2">Configuration Error</h2>
-          <p>{error}</p>
-          <p className="mt-2 text-sm">Please follow the `SETUP_INSTRUCTIONS.md` file carefully.</p>
-        </div>
-      );
-    }
-
     switch (activePage) {
       case 'dashboard':
         return <DashboardPage trades={filteredTrades} onDeleteTrade={deleteTrade} onEditTrade={handleEditTrade} />;
@@ -122,6 +123,11 @@ const App: React.FC = () => {
         return <DashboardPage trades={filteredTrades} onDeleteTrade={deleteTrade} onEditTrade={handleEditTrade} />;
     }
   };
+
+  // If setup is required, render the full-screen guide. This is the most important check.
+  if (isSetupRequired) {
+    return <SetupGuide />;
+  }
 
   if (loading) {
     return (
@@ -145,7 +151,15 @@ const App: React.FC = () => {
       <div className="flex-1 flex flex-col max-w-[calc(100%-16rem)]">
         <Header activeFilter={activeFilter} onFilterChange={setActiveFilter} />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
-          {renderPage()}
+          {error ? (
+            <div className="p-6 text-center text-red-400 bg-red-900/50 border border-red-500 rounded-lg max-w-2xl mx-auto">
+              <h2 className="text-xl font-bold mb-3">⚠️ An Error Occurred</h2>
+              <p className="font-mono bg-black/30 p-3 rounded-md text-yellow-300">{error}</p>
+              <p className="mt-4 text-sm text-red-300">Could not load data. Please check the developer console and ensure your Google Apps Script is deployed correctly.</p>
+            </div>
+          ) : (
+            renderPage()
+          )}
         </main>
       </div>
       <AddTradeModal
