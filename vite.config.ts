@@ -10,10 +10,19 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: true,
     rollupOptions: {
-      input: 'index.html'
+      input: {
+        main: 'index.html',
+      },
+      output: {
+        manualChunks: undefined
+      }
     }
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx']
+  },
+  server: {
+    port: 3000,
+    open: true
   }
 })
