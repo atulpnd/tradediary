@@ -7,7 +7,17 @@ export default defineConfig({
   base: '/tradediary/',
   build: {
     outDir: 'dist',
-    sourcemap: true
+    sourcemap: true,
+    rollupOptions: {
+      output: {
+        entryFileNames: `assets/[name]-[hash].js`,
+        chunkFileNames: `assets/[name]-[hash].js`,
+        assetFileNames: `assets/[name]-[hash].[ext]`
+      }
+    }
+  },
+  optimizeDeps: {
+    include: ['react', 'react-dom']
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx']
