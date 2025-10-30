@@ -10,14 +10,10 @@ export default defineConfig({
     assetsDir: 'assets',
     sourcemap: true,
     rollupOptions: {
-      input: {
-        main: './index.html'
-      },
-      output: {
-        entryFileNames: 'assets/[name]-[hash].js',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        assetFileNames: 'assets/[name]-[hash].[ext]'
-      }
+      input: 'index.html'
     }
+  },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js', '.jsx']
   }
 })
