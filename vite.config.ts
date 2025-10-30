@@ -7,12 +7,19 @@ export default defineConfig({
   base: '/tradediary/',
   build: {
     outDir: 'dist',
-    sourcemap: true
-  },
-  optimizeDeps: {
-    include: ['react', 'react-dom']
+    sourcemap: true,
+    rollupOptions: {
+      input: 'index.html',
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+        }
+      }
+    },
+    target: 'esnext',
+    minify: 'esbuild'
   },
   resolve: {
-    extensions: ['.ts', '.tsx', '.js', '.jsx']
+    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json']
   }
 })
