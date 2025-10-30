@@ -7,22 +7,9 @@ export default defineConfig({
   base: '/tradediary/',
   build: {
     outDir: 'dist',
-    assetsDir: 'assets',
-    sourcemap: true,
-    rollupOptions: {
-      input: {
-        main: 'index.html',
-      },
-      output: {
-        manualChunks: undefined
-      }
-    }
+    sourcemap: true
   },
   resolve: {
     extensions: ['.ts', '.tsx', '.js', '.jsx']
-  },
-  server: {
-    port: 3000,
-    open: true
   }
 })
